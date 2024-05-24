@@ -1,12 +1,10 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:risky_coin/presentation/common/text_field_common.dart';
 import 'package:risky_coin/presentation/route/app_router.gr.dart';
-import 'package:risky_coin/presentation/screen/login_screen/bloc/login_bloc.dart';
+import 'package:risky_coin/presentation/screen/login_screen/cubit/login_cubit.dart';
 import 'package:risky_coin/presentation/utils/color_utils.dart';
 import 'package:risky_coin/presentation/utils/dialog_helper.dart';
 import 'package:risky_coin/presentation/utils/text_style_utils.dart';
@@ -23,21 +21,21 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => LoginBloc()..add(LoginEventInit()),
-      child: BlocConsumer<LoginBloc, LoginState>(
+      create: (context) => LoginCubit()..init(),
+      child: BlocConsumer<LoginCubit, LoginState>(
         listener: (context, state) {
-          if(state is LoginStateLoaded) {
+          if(state is LoginLoaded) {
             emailController.text = '';
             passwordController.text = '';
           }
-          if(state is LoginStateLoginSuccess) {
+          if(state is LoginLoginSuccess) {
             DialogHelper.hideLoadingDialog(context);
             AutoRouter.of(context).replace(const HomeRoute());
           }
-          if(state is LoginStateLoading) {
+          if(state is LoginLoading) {
             DialogHelper.showLoadingDialog(context);
           }
-          if(state is LoginStateError) {
+          if(state is LoginError) {
             DialogHelper.hideLoadingDialog(context);
           }
         },
@@ -51,7 +49,7 @@ class LoginScreen extends StatelessWidget {
   }
 
   Widget _body(BuildContext context) {
-    LoginState state = context.select((LoginBloc bloc) => bloc.state);
+    LoginState state = context.select((LoginCubit cubit) => cubit.state);
     return Padding(
         padding: const EdgeInsets.all(16),
         child: Center(
@@ -63,7 +61,7 @@ class LoginScreen extends StatelessWidget {
                   _sizeBoxH16(),
                   _passwordTextField(),
                   _sizeBoxH16(),
-                  if(state is LoginStateError) ...[
+                  if(state is LoginError) ...[
                     _errorText(state.message),
                   ],
                   _buttonLogin(context),
@@ -116,11 +114,9 @@ class LoginScreen extends StatelessWidget {
   Widget _buttonLogin(BuildContext context) {
     return InkWell(
       onTap: () {
-        context.read<LoginBloc>().add(
-          LoginEventLogin(
-            email: emailController.text,
-            password: passwordController.text,
-          )
+        context.read<LoginCubit>().login(
+          email: emailController.text,
+          password: passwordController.text,
         );
       },
       splashColor: Colors.transparent,
@@ -151,7 +147,7 @@ class LoginScreen extends StatelessWidget {
         InkWell(
           onTap: () {
             AutoRouter.of(context).push(RegisterRoute())
-                .then((value) => context.read<LoginBloc>().add(LoginEventInit()));
+                .then((value) => context.read<LoginCubit>().init());
           },
           child: Text(
             TextUtils.register,
