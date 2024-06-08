@@ -1,10 +1,9 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:risky_coin/presentation/common/text_field_common.dart';
-import 'package:risky_coin/presentation/screen/register_screen/bloc/register_bloc.dart';
+import 'package:risky_coin/presentation/screen/register_screen/cubit/register_cubit.dart';
 import 'package:risky_coin/presentation/utils/color_utils.dart';
 import 'package:risky_coin/presentation/utils/dialog_helper.dart';
 import 'package:risky_coin/presentation/utils/text_style_utils.dart';
@@ -21,22 +20,22 @@ class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => RegisterBloc()..add(RegisterEventInit()),
-      child: BlocConsumer<RegisterBloc, RegisterState>(
+      create: (context) => RegisterCubit()..init(),
+      child: BlocConsumer<RegisterCubit, RegisterState>(
         listener: (context, state) {
-          if(state is RegisterStateLoaded) {
+          if(state is RegisterLoaded) {
             emailController.text = '';
             passwordController.text = '';
             confirmPasswordController.text = '';
           }
-          if(state is RegisterStateRegisterSuccess) {
+          if(state is RegisterRegisterSuccess) {
             DialogHelper.hideLoadingDialog(context);
             AutoRouter.of(context).maybePop();
           }
-          if(state is RegisterStateLoading) {
+          if(state is RegisterLoading) {
             DialogHelper.showLoadingDialog(context);
           }
-          if(state is RegisterStateError) {
+          if(state is RegisterError) {
             DialogHelper.hideLoadingDialog(context);
           }
         },
@@ -63,7 +62,7 @@ class RegisterScreen extends StatelessWidget {
     );
   }
   Widget _body(BuildContext context) {
-    RegisterState state = context.select((RegisterBloc bloc) => bloc.state);
+    RegisterState state = context.select((RegisterCubit cubit) => cubit.state);
     return Padding(
         padding: const EdgeInsets.all(16),
         child: Center(
@@ -77,7 +76,7 @@ class RegisterScreen extends StatelessWidget {
                   _sizeBoxH16(),
                   _confirmPasswordTextField(),
                   _sizeBoxH16(),
-                  if(state is RegisterStateError) ...[
+                  if(state is RegisterError) ...[
                     _errorText(state.message),
                   ],
                   _buttonRegister(context),
@@ -145,12 +144,10 @@ class RegisterScreen extends StatelessWidget {
   Widget _buttonRegister(BuildContext context) {
     return InkWell(
       onTap: () {
-        context.read<RegisterBloc>().add(
-          RegisterEventRegister(
-            email: emailController.text,
-            password: passwordController.text,
-            confirmPassword: confirmPasswordController.text,
-          ),
+        context.read<RegisterCubit>().register(
+          email: emailController.text,
+          password: passwordController.text,
+          confirmPassword: confirmPasswordController.text,
         );
       },
       splashColor: Colors.transparent,
