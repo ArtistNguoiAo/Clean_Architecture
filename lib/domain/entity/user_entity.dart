@@ -4,7 +4,7 @@ class UserEntity {
   final String email;
   final String phone;
   final String address;
-  final String? avatar;
+  final int position;
 
   UserEntity({
     this.id,
@@ -12,6 +12,6 @@ class UserEntity {
     required this.email,
     required this.phone,
     required this.address,
-    this.avatar,
+    required this.position,
   });
 }

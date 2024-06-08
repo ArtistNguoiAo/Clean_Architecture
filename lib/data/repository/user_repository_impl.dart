@@ -8,60 +8,22 @@ class UserRepositoryImpl implements UserRepository {
   final FirebaseDatabase _firebaseDatabase = FirebaseDatabase.instance;
 
   @override
-  Future<UserEntity> getUser({String? id}) async {
-    id ??= _firebaseAuth.currentUser?.uid;
-    try {
-      final data = await _firebaseDatabase.ref('users/$id').once();
-      if (data.snapshot.value != null) {
-        Map<Object?, dynamic> map = data.snapshot.value as Map<Object?, Object?>;
-        return UserEntity(
-          id: map['id'],
-          name: map['name'],
-          email: _firebaseAuth.currentUser?.email ?? map['email'],
-          phone: map['phone'],
-          address: map['address'],
-          avatar: map['avatar'],
-        );
-      }
-    }
-    catch(e)  {
-      print("TrungLQ: ${e.toString()}");
-    }
-    return UserEntity(
-      id: _firebaseAuth.currentUser?.uid,
-      name: _firebaseAuth.currentUser?.displayName ?? "",
-      email: _firebaseAuth.currentUser?.email ?? "",
-      phone: "",
-      address: "",
-      avatar: _firebaseAuth.currentUser?.photoURL,
-    );
+  Future<UserEntity> createUser(UserEntity user) {
+    // TODO: implement createUser
+    throw UnimplementedError();
   }
 
   @override
-  Future<UserEntity> createUser(UserEntity user) async {
-    String? userId = _firebaseAuth.currentUser?.uid;
-    await _firebaseDatabase.ref('users/$userId').set({
-      "id": userId,
-      "name": user.name,
-      "email": user.email,
-      "phone": user.phone,
-      "address": user.address,
-      "avatar": user.avatar,
-    });
-    return user;
+  Future<UserEntity> getUser({String? id}) {
+    // TODO: implement getUser
+    throw UnimplementedError();
   }
 
   @override
-  Future<UserEntity> updateUser(UserEntity user) async {
-    String? userId = _firebaseAuth.currentUser?.uid;
-    await _firebaseDatabase.ref('users/$userId').update({
-      "id": userId,
-      "name": user.name,
-      "email": user.email,
-      "phone": user.phone,
-      "address": user.address,
-      "avatar": user.avatar,
-    });
-    return user;
+  Future<UserEntity> updateUser(UserEntity user) {
+    // TODO: implement updateUser
+    throw UnimplementedError();
   }
+
+  
 }
